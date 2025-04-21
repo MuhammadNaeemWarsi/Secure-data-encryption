@@ -2,40 +2,21 @@
 import streamlit as st
 from cryptography.fernet import Fernet
 
-# Generate or load a key (you can also save and reuse this securely)
-@st.cache_resource
-def load_key():
-    return Fernet.generate_key()
+def generate_key():
+    key = Fernet.generate_key()
+    return key
 
-key = load_key()
-fernet = Fernet(key)
+def encrypt_data(data, key):
+    cipher_suite = Fernet(key)
+    cipher_text = cipher_suite.encrypt(data.encode())
+    return cipher_text
 
-st.title("🔐 Secure Data Encryption App")
+st.title("Secure Data Encryption")
+key = generate_key()
+data = st.text_input("Data")
 
-menu = st.sidebar.selectbox("Choose an option", ["Encrypt", "Decrypt"])
-
-if menu == "Encrypt":
-    st.subheader("🔏 Encrypt Your Message")
-    user_input = st.text_area("Enter the text to encrypt:")
-
-    if st.button("Encrypt"):
-        if user_input:
-            encrypted = fernet.encrypt(user_input.encode())
-            st.success("Encrypted Data:")
-            st.code(encrypted.decode())
-        else:
-            st.warning("Please enter text to encrypt.")
-
-elif menu == "Decrypt":
-    st.subheader("🔓 Decrypt Your Message")
-    encrypted_input = st.text_area("Enter the encrypted text:")
-
-    if st.button("Decrypt"):
-        try:
-            decrypted = fernet.decrypt(encrypted_input.encode()).decode()
-            st.success("Decrypted Data:")
-            st.code(decrypted)
-        except Exception as e:
-            st.error(f"Decryption failed: {str(e)}")
+if st.button("Encrypt"):
+    encrypted_data = encrypt_data(data, key)
+    st.success(f"Encrypted Data: {encrypted_data}")
 
 
